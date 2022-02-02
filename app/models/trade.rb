@@ -138,9 +138,9 @@ class Trade < ApplicationRecord
   end
 
   def trigger_event
-    ::AMQP::Queue.enqueue_event("private", maker.uid, "trade", for_notify(maker))
-    ::AMQP::Queue.enqueue_event("private", taker.uid, "trade", for_notify(taker))
-    ::AMQP::Queue.enqueue_event("public", market.symbol, "trades", {trades: [for_global]})
+    ::Stream.enqueue_event("private", maker.uid, "trade", for_notify(maker))
+    ::Stream.enqueue_event("private", taker.uid, "trade", for_notify(taker))
+    ::Stream.enqueue_event("public", market.symbol, "trades", {trades: [for_global]})
   end
 
   def for_notify(member = nil)

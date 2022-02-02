@@ -1,12 +1,12 @@
 # encoding: UTF-8
 # frozen_string_literal: true
 
-describe Workers::AMQP::Matching do
+describe Workers::Engines::Matching do
   let(:alice)  { who_is_billionaire }
   let(:bob)    { who_is_billionaire }
   let(:market) { Market.find_spot_by_symbol(:btcusd) }
 
-  subject { Workers::AMQP::Matching.new }
+  subject { Workers::Engines::Matching.new }
 
   context 'engines' do
     it 'should get all engines' do
@@ -32,7 +32,7 @@ describe Workers::AMQP::Matching do
     it 'should match part of existing order' do
       order = create(:order_bid, :btcusd, price: '4001', volume: '8.0', member: bob)
 
-      AMQP::Queue.expects(:enqueue)
+      Stream.expects(:enqueue)
                .with(:trade_executor, { action: 'execute', trade: { market_id: market.symbol, maker_order_id: existing.id, taker_order_id: order.id, strike_price: '4001'.to_d, amount: '8.0'.to_d, total: '32008'.to_d } }, anything)
       subject.process({ action: 'submit', order: order.to_matching_attributes }, {}, {})
     end
@@ -40,7 +40,7 @@ describe Workers::AMQP::Matching do
     it 'should match part of new order' do
       order = create(:order_bid, :btcusd, price: '4001', volume: '12.0', member: bob)
 
-      AMQP::Queue.expects(:enqueue)
+      Stream.expects(:enqueue)
                .with(:trade_executor, { action: 'execute', trade: { market_id: market.symbol, maker_order_id: existing.id, taker_order_id: order.id, strike_price: '4001'.to_d, amount: '10.0'.to_d, total: '40010'.to_d } }, anything)
       subject.process({ action: 'submit', order: order.to_matching_attributes }, {}, {})
     end
@@ -77,13 +77,13 @@ describe Workers::AMQP::Matching do
     end
 
     it 'should create many trades' do
-      AMQP::Queue.expects(:enqueue)
+      Stream.expects(:enqueue)
                .with(:trade_executor, { action: 'execute', trade: { market_id: market.symbol, maker_order_id: ask1.id, taker_order_id: bid3.id, strike_price: ask1.price, amount: ask1.volume, total: '12009'.to_d } }, anything).once
-      AMQP::Queue.expects(:enqueue)
+      Stream.expects(:enqueue)
                .with(:trade_executor, { action: 'execute', trade: { market_id: market.symbol, maker_order_id: ask2.id, taker_order_id: bid3.id, strike_price: ask2.price, amount: ask2.volume, total: '12006'.to_d } }, anything).once
-      AMQP::Queue.expects(:enqueue)
+      Stream.expects(:enqueue)
                .with(:trade_executor, { action: 'execute', trade: { market_id: market.symbol, taker_order_id: ask4.id, maker_order_id: bid3.id, strike_price: bid3.price, amount: '2.0'.to_d, total: '8006'.to_d } }, anything).once
-      AMQP::Queue.expects(:enqueue)
+      Stream.expects(:enqueue)
                .with(:trade_executor, { action: 'execute', trade: { market_id: market.symbol, maker_order_id: ask4.id, taker_order_id: bid5.id, strike_price: ask4.price, amount: bid5.volume, total: '12006'.to_d } }, anything).once
 
       subject
@@ -106,7 +106,7 @@ describe Workers::AMQP::Matching do
   context 'dryrun' do
     let!(:bid) { create(:order_bid, :btcusd, price: '4001', volume: '8.0', member: bob) }
 
-    subject { Workers::AMQP::Matching.new(mode: :dryrun) }
+    subject { Workers::Engines::Matching.new(mode: :dryrun) }
 
     context 'very old orders matched' do
       let!(:ask) { create(:order_ask, :btcusd, price: '4000', volume: '3.0', member: alice, created_at: 1.day.ago) }

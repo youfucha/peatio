@@ -31,14 +31,6 @@ services:
     ports:
       - "6379:6379"
 
-  rabbitmq:
-    image: rabbitmq:3.7.6-management
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-
   auth:
     image: quay.io/openware/authz-dummy:0.1.1
     ports:
@@ -86,5 +78,4 @@ services:
 volumes:
   influx_data:
   db_data:
-  rabbitmq_data:
   redis_data:

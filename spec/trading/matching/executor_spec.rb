@@ -82,8 +82,8 @@ describe Matching::Executor do
       expect(Order.find(bid.id).state).to eq Order::DONE
     end
 
-    it 'should publish trade through amqp' do
-      AMQP::Queue.expects(:publish)
+    it 'should publish trade through kafka' do
+      Stream.expects(:publish)
       subject.execute!
     end
   end

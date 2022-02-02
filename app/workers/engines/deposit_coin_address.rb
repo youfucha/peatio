@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 module Workers
-  module AMQP
+  module Engines
     class DepositCoinAddress < Base
       def process(payload)
         payload.symbolize_keys!

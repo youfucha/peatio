@@ -21,9 +21,9 @@ describe Operations::Liability do
       }
     end
 
-    before { AMQP::Queue.expects(:enqueue).with(:events_processor, expected_message) }
+    before { Stream.expects(:enqueue).with(:events_processor, expected_message) }
 
-    it 'publishes message to rabbitmq' do
+    it 'publishes message to kafka' do
       # Accept deposit for creation of liability.
       expect(deposit.accept!).to be_truthy
     end

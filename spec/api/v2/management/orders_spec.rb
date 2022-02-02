@@ -142,16 +142,16 @@ describe API::V2::Management::Orders, type: :request do
     let(:data) { {} }
 
     it 'cancels an order on peatio market' do
-      AMQP::Queue.expects(:enqueue).with(:matching, action: 'cancel', order: peatio_order.to_matching_attributes)
-      AMQP::Queue.expects(:publish).with(finex_engine.driver, data: peatio_order.as_json_for_third_party, type: 3).never
+      Stream.expects(:enqueue).with(:matching, action: 'cancel', order: peatio_order.to_matching_attributes)
+      Stream.expects(:publish).with(finex_engine.driver, data: peatio_order.as_json_for_third_party, type: 3).never
       request(peatio_order.id)
       expect(response).to have_http_status 200
     end
 
     context 'third party order cancel' do
       it 'cancel an order on third party market' do
-        AMQP::Queue.expects(:enqueue).with(:matching, action: 'cancel', order: third_party_order.to_matching_attributes).never
-        AMQP::Queue.expects(:publish).with(finex_engine.driver, data: third_party_order.as_json_for_third_party, type: 3)
+        Stream.expects(:enqueue).with(:matching, action: 'cancel', order: third_party_order.to_matching_attributes).never
+        Stream.expects(:publish).with(finex_engine.driver, data: third_party_order.as_json_for_third_party, type: 3)
 
         request(third_party_order.id)
         expect(response).to have_http_status 200
@@ -184,9 +184,9 @@ describe API::V2::Management::Orders, type: :request do
       it 'cancels the orders on peatio spot market' do
         data[:market] = 'btcusd'
 
-        AMQP::Queue.expects(:enqueue).with(:matching, action: 'cancel', order: member1_peatio_order.to_matching_attributes)
-        AMQP::Queue.expects(:enqueue).with(:matching, action: 'cancel', order: member2_peatio_order.to_matching_attributes)
-        AMQP::Queue.expects(:publish).with(finex_engine.driver, data: { market_id: 'btcusd' }, type: 4).never
+        Stream.expects(:enqueue).with(:matching, action: 'cancel', order: member1_peatio_order.to_matching_attributes)
+        Stream.expects(:enqueue).with(:matching, action: 'cancel', order: member2_peatio_order.to_matching_attributes)
+        Stream.expects(:publish).with(finex_engine.driver, data: { market_id: 'btcusd' }, type: 4).never
 
         request
         expect(response).to have_http_status 204
@@ -196,8 +196,8 @@ describe API::V2::Management::Orders, type: :request do
         data[:market] = 'btcusd'
         data[:uid] = member1.uid
 
-        AMQP::Queue.expects(:enqueue).with(:matching, action: 'cancel', order: member1_peatio_order.to_matching_attributes)
-        AMQP::Queue.expects(:publish).with(finex_engine.driver, data: { market_id: 'btcusd' }, type: 4).never
+        Stream.expects(:enqueue).with(:matching, action: 'cancel', order: member1_peatio_order.to_matching_attributes)
+        Stream.expects(:publish).with(finex_engine.driver, data: { market_id: 'btcusd' }, type: 4).never
 
         request
         expect(response).to have_http_status 204
@@ -209,9 +209,9 @@ describe API::V2::Management::Orders, type: :request do
       it 'cancels the orders on third party market' do
         data[:market] = 'btceth'
 
-        AMQP::Queue.expects(:enqueue).with(:matching, action: 'cancel', order: member1_peatio_order.to_matching_attributes).never
-        AMQP::Queue.expects(:enqueue).with(:matching, action: 'cancel', order: member2_peatio_order.to_matching_attributes).never
-        AMQP::Queue.expects(:publish).with(finex_engine.driver, data: { market_id: 'btceth', market_type: 'spot' }, type: 4)
+        Stream.expects(:enqueue).with(:matching, action: 'cancel', order: member1_peatio_order.to_matching_attributes).never
+        Stream.expects(:enqueue).with(:matching, action: 'cancel', order: member2_peatio_order.to_matching_attributes).never
+        Stream.expects(:publish).with(finex_engine.driver, data: { market_id: 'btceth', market_type: 'spot' }, type: 4)
 
         request
         expect(response).to have_http_status 204
@@ -221,8 +221,8 @@ describe API::V2::Management::Orders, type: :request do
         data[:market] = 'btceth'
         data[:uid] = member1.uid
 
-        AMQP::Queue.expects(:enqueue).with(:matching, action: 'cancel', order: member1_peatio_order.to_matching_attributes).never
-        AMQP::Queue.expects(:publish).with(finex_engine.driver, data: { market_id: 'btceth', market_type: 'spot', member_uid: member1.uid }, type: 4)
+        Stream.expects(:enqueue).with(:matching, action: 'cancel', order: member1_peatio_order.to_matching_attributes).never
+        Stream.expects(:publish).with(finex_engine.driver, data: { market_id: 'btceth', market_type: 'spot', member_uid: member1.uid }, type: 4)
 
         request
         expect(response).to have_http_status 204

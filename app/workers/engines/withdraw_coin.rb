@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 module Workers
-  module AMQP
+  module Engines
     class WithdrawCoin < Base
       def initialize
         @logger = TaggedLogger.new(Rails.logger, worker: __FILE__)

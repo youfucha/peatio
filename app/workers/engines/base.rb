@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 module Workers
-  module AMQP
+  module Engines
     class Base
       def is_db_connection_error?(exception)
         exception.is_a?(Mysql2::Error::ConnectionError) || exception.cause.is_a?(Mysql2::Error)

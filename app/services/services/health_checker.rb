@@ -3,7 +3,8 @@
 
 module Services
   module HealthChecker
-    LIVENESS_CHECKS = %i[check_db check_redis check_rabbitmq].freeze
+    # TODO: add check for kafka
+    LIVENESS_CHECKS = %i[check_db check_redis].freeze
     READINESS_CHECKS = %i[check_db].freeze
 
     class << self
@@ -34,10 +35,6 @@ module Services
 
       def check_redis
         Rails.cache.redis.ping == 'PONG'
-      end
-
-      def check_rabbitmq
-        Bunny.run(AMQP::Config.connect) { |c| c.connected? }
       end
     end
   end

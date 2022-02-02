@@ -325,7 +325,7 @@ describe API::V2::Market::Orders, type: :request do
     it 'submit a sell order on third party engine' do
       member.get_account(:btc).update_attributes(balance: 100)
       Market.find_spot_by_symbol('btcusd').engine.update(driver: "finex-spot")
-      AMQP::Queue.expects(:publish)
+      Stream.expects(:publish)
 
       expect do
         api_post '/api/v2/market/orders', token: token, params: { market: 'btcusd', side: 'sell', volume: '12.13', price: '2014' }
@@ -336,7 +336,7 @@ describe API::V2::Market::Orders, type: :request do
 
     it 'creates a buy order' do
       member.get_account(:usd).update_attributes(balance: 100_000)
-      AMQP::Queue.expects(:enqueue).with(:order_processor, is_a(Hash), is_a(Hash))
+      Stream.expects(:enqueue).with(:order_processor, is_a(Hash), is_a(Hash))
 
       expect do
         api_post '/api/v2/market/orders', token: token, params: { market: 'btcusd', side: 'buy', volume: '12.13', price: '2014' }
@@ -477,7 +477,7 @@ describe API::V2::Market::Orders, type: :request do
 
           Market.find_spot_by_symbol('btcusd').engine.update(driver: "finex-spot")
 
-          AMQP::Queue.expects(:publish)
+          Stream.expects(:publish)
 
           expect do
             api_post '/api/v2/market/orders', token: token, params: { market: 'btcusd', side: 'sell', volume: '0.5', ord_type: 'market' }
@@ -534,7 +534,7 @@ describe API::V2::Market::Orders, type: :request do
       end
 
       it 'should cancel specified order by id' do
-        AMQP::Queue.expects(:enqueue).with(:matching, action: 'cancel', order: order.to_matching_attributes)
+        Stream.expects(:enqueue).with(:matching, action: 'cancel', order: order.to_matching_attributes)
 
         expect do
           api_post "/api/v2/market/orders/#{order.id}/cancel", token: token
@@ -544,7 +544,7 @@ describe API::V2::Market::Orders, type: :request do
       end
 
       it 'should cancel specified order by uuid' do
-        AMQP::Queue.expects(:enqueue).with(:matching, action: 'cancel', order: order.to_matching_attributes)
+        Stream.expects(:enqueue).with(:matching, action: 'cancel', order: order.to_matching_attributes)
 
         expect do
           api_post "/api/v2/market/orders/#{order.uuid}/cancel", token: token
@@ -560,8 +560,8 @@ describe API::V2::Market::Orders, type: :request do
       end
 
       it 'should cancel specified order by uuid' do
-        AMQP::Queue.expects(:enqueue).with(:matching, action: 'cancel', order: order.to_matching_attributes).never
-        AMQP::Queue.expects(:publish).with(order.market.engine.driver, data: order.as_json_for_third_party, type: 3)
+        Stream.expects(:enqueue).with(:matching, action: 'cancel', order: order.to_matching_attributes).never
+        Stream.expects(:publish).with(order.market.engine.driver, data: order.as_json_for_third_party, type: 3)
 
         expect do
           api_post "/api/v2/market/orders/#{order.uuid}/cancel", token: token
@@ -611,7 +611,7 @@ describe API::V2::Market::Orders, type: :request do
 
     it 'should cancel all my orders' do
       member.orders.each do |o|
-        AMQP::Queue.expects(:enqueue).with(:matching, action: 'cancel', order: o.to_matching_attributes)
+        Stream.expects(:enqueue).with(:matching, action: 'cancel', order: o.to_matching_attributes)
 
       end
 
@@ -632,10 +632,10 @@ describe API::V2::Market::Orders, type: :request do
       end
 
       it 'should cancel all my orders on market with third party engine' do
-        AMQP::Queue.expects(:enqueue).never
+        Stream.expects(:enqueue).never
 
         member.orders.each do |o|
-          AMQP::Queue.expects(:publish).with(o.market.engine.driver, data: o.as_json_for_third_party, type: 3)
+          Stream.expects(:publish).with(o.market.engine.driver, data: o.as_json_for_third_party, type: 3)
         end
 
         expect do
@@ -650,7 +650,7 @@ describe API::V2::Market::Orders, type: :request do
 
     it 'should cancel all my orders for specific market' do
       member.orders.where(market: 'btceth').each do |o|
-        AMQP::Queue.expects(:enqueue).with(:matching, action: 'cancel', order: o.to_matching_attributes)
+        Stream.expects(:enqueue).with(:matching, action: 'cancel', order: o.to_matching_attributes)
       end
 
       expect do
@@ -664,7 +664,7 @@ describe API::V2::Market::Orders, type: :request do
 
     it 'should cancel all my asks' do
       member.orders.where(type: 'OrderAsk').each do |o|
-        AMQP::Queue.expects(:enqueue).with(:matching, action: 'cancel', order: o.to_matching_attributes)
+        Stream.expects(:enqueue).with(:matching, action: 'cancel', order: o.to_matching_attributes)
       end
 
       expect do

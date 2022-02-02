@@ -200,7 +200,7 @@ describe API::V2::Admin::Orders, type: :request do
     end
 
     it 'should cancel specified order' do
-      AMQP::Queue.expects(:enqueue).with(:matching, action: 'cancel', order: order.to_matching_attributes)
+      Stream.expects(:enqueue).with(:matching, action: 'cancel', order: order.to_matching_attributes)
       expect do
         api_post "/api/v2/admin/orders/#{order.id}/cancel", token: token
         result = JSON.parse(response.body)
@@ -235,7 +235,7 @@ describe API::V2::Admin::Orders, type: :request do
 
     it 'should cancel all my orders for specific market' do
       level_3_member.orders.where(market: 'btceth').each do |o|
-        AMQP::Queue.expects(:enqueue).with(:matching, action: 'cancel', order: o.to_matching_attributes)
+        Stream.expects(:enqueue).with(:matching, action: 'cancel', order: o.to_matching_attributes)
       end
 
       expect do
@@ -249,7 +249,7 @@ describe API::V2::Admin::Orders, type: :request do
 
     it 'should cancel all asks for specific market' do
       level_3_member.orders.where(type: 'OrderAsk', market_id: 'btcusd').each do |o|
-        AMQP::Queue.expects(:enqueue).with(:matching, action: 'cancel', order: o.to_matching_attributes)
+        Stream.expects(:enqueue).with(:matching, action: 'cancel', order: o.to_matching_attributes)
       end
 
       expect do

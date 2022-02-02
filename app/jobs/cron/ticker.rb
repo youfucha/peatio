@@ -12,7 +12,7 @@ module Jobs
         end
         Rails.logger.info { "Publish tickers: #{@tickers}" }
         Rails.cache.write(:markets_tickers, @cache_tickers)
-        ::AMQP::Queue.enqueue_event('public', 'global', 'tickers', @tickers)
+        ::Stream.enqueue_event('public', 'global', 'tickers', @tickers)
         sleep 5
       end
 

@@ -1,7 +1,7 @@
 # encoding: UTF-8
 # frozen_string_literal: true
 
-describe Workers::AMQP::WithdrawCoin do
+describe Workers::Engines::WithdrawCoin do
   let(:member) { create(:member, :barong) }
   let(:withdrawal) { create(:btc_withdraw, :with_deposit_liability) }
   let(:processing_withdrawal) do
@@ -14,13 +14,13 @@ describe Workers::AMQP::WithdrawCoin do
     before { Withdraw.expects(:find_by_id).returns(nil) }
 
     it 'returns nil' do
-      expect(Workers::AMQP::WithdrawCoin.new.process(withdrawal.as_json)).to be(nil)
+      expect(Workers::Engines::WithdrawCoin.new.process(withdrawal.as_json)).to be(nil)
     end
   end
 
   context 'withdrawal is not in processing state' do
     it 'returns nil' do
-      expect(Workers::AMQP::WithdrawCoin.new.process(withdrawal.as_json)).to be(nil)
+      expect(Workers::Engines::WithdrawCoin.new.process(withdrawal.as_json)).to be(nil)
     end
   end
 
@@ -40,7 +40,7 @@ describe Workers::AMQP::WithdrawCoin do
 
     # TODO: Finalize me.
     it 'returns nil and fail withdrawal' do
-      # expect(Workers::AMQP::WithdrawCoin.new.process(processing_withdrawal.as_json)).to be(nil)
+      # expect(Workers::Engines::WithdrawCoin.new.process(processing_withdrawal.as_json)).to be(nil)
       # expect(processing_withdrawal.reload.failed?).to be_truthy
     end
   end
@@ -53,7 +53,7 @@ describe Workers::AMQP::WithdrawCoin do
     end
 
     it 'returns nil and skip withdrawal' do
-      expect(Workers::AMQP::WithdrawCoin.new.process(processing_withdrawal.as_json)).to be(nil)
+      expect(Workers::Engines::WithdrawCoin.new.process(processing_withdrawal.as_json)).to be(nil)
       expect(processing_withdrawal.reload.skipped?).to be_truthy
     end
   end
@@ -67,7 +67,7 @@ describe Workers::AMQP::WithdrawCoin do
     end
 
     it 'returns true and marks withdrawal as errored' do
-      expect(Workers::AMQP::WithdrawCoin.new.process(processing_withdrawal.as_json)).to be_truthy
+      expect(Workers::Engines::WithdrawCoin.new.process(processing_withdrawal.as_json)).to be_truthy
       expect(processing_withdrawal.reload.errored?).to be_truthy
     end
   end
@@ -80,7 +80,7 @@ describe Workers::AMQP::WithdrawCoin do
     end
 
     it 'returns nil and skip withdrawal' do
-      expect(Workers::AMQP::WithdrawCoin.new.process(processing_withdrawal.as_json)).to be(true)
+      expect(Workers::Engines::WithdrawCoin.new.process(processing_withdrawal.as_json)).to be(true)
       expect(processing_withdrawal.reload.skipped?).to be_truthy
     end
   end
@@ -98,7 +98,7 @@ describe Workers::AMQP::WithdrawCoin do
     end
 
     it 'returns true and marks withdrawal as errored' do
-      expect(Workers::AMQP::WithdrawCoin.new.process(processing_withdrawal.as_json)).to be_truthy
+      expect(Workers::Engines::WithdrawCoin.new.process(processing_withdrawal.as_json)).to be_truthy
       expect(processing_withdrawal.reload.errored?).to be_truthy
     end
   end
@@ -119,7 +119,7 @@ describe Workers::AMQP::WithdrawCoin do
     end
 
     it 'returns true and dispatch withdrawal' do
-      expect(Workers::AMQP::WithdrawCoin.new.process(processing_withdrawal.as_json)).to be_truthy
+      expect(Workers::Engines::WithdrawCoin.new.process(processing_withdrawal.as_json)).to be_truthy
       expect(processing_withdrawal.reload.confirming?).to be_truthy
       expect(processing_withdrawal.txid).to eq('hash-1')
     end
@@ -144,7 +144,7 @@ describe Workers::AMQP::WithdrawCoin do
     end
 
     it 'returns true and dispatch withdrawal' do
-      Workers::AMQP::WithdrawCoin.new.process(processing_withdrawal.as_json)
+      Workers::Engines::WithdrawCoin.new.process(processing_withdrawal.as_json)
       expect(processing_withdrawal.reload.under_review?).to be_truthy
       expect(processing_withdrawal.remote_id).to eq('d12331-12312d-34234')
     end

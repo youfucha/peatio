@@ -1,7 +1,7 @@
 # encoding: UTF-8
 # frozen_string_literal: true
 
-describe Workers::AMQP::DepositCoinAddress do
+describe Workers::Engines::DepositCoinAddress do
   let(:member) { create(:member, :barong) }
   let(:address) { Faker::Blockchain::Bitcoin.address }
   let(:secret) { PasswordGenerator.generate(64) }
@@ -18,7 +18,7 @@ describe Workers::AMQP::DepositCoinAddress do
   it 'raise error on databse connection error' do
     Member.stubs(:find_by_id).raises(Mysql2::Error::ConnectionError.new(''))
     expect {
-      Workers::AMQP::DepositCoinAddress.new.process(member_id: member.id, wallet_id: wallet.id)
+      Workers::Engines::DepositCoinAddress.new.process(member_id: member.id, wallet_id: wallet.id)
     }.to raise_error Mysql2::Error::ConnectionError
   end
 
@@ -30,7 +30,7 @@ describe Workers::AMQP::DepositCoinAddress do
     end
 
     it 'is passed to wallet service' do
-      Workers::AMQP::DepositCoinAddress.new.process(member_id: member.id, wallet_id: wallet.id)
+      Workers::Engines::DepositCoinAddress.new.process(member_id: member.id, wallet_id: wallet.id)
       expect(subject).to eq address
       payment_address.reload
       expect(payment_address.as_json
@@ -45,7 +45,7 @@ describe Workers::AMQP::DepositCoinAddress do
       end
 
       it 'is passed to wallet service' do
-        Workers::AMQP::DepositCoinAddress.new.process(member_id: member.id, wallet_id: wallet.id)
+        Workers::Engines::DepositCoinAddress.new.process(member_id: member.id, wallet_id: wallet.id)
         expect(subject).to eq address
         payment_address.reload
         expect(payment_address.as_json
@@ -64,7 +64,7 @@ describe Workers::AMQP::DepositCoinAddress do
       end
 
       it 'shouldnt create address' do
-        Workers::AMQP::DepositCoinAddress.new.process(member_id: member.id, wallet_id: wallet.id)
+        Workers::Engines::DepositCoinAddress.new.process(member_id: member.id, wallet_id: wallet.id)
         expect(subject).to eq nil
         payment_address.reload
         expect(payment_address.as_json

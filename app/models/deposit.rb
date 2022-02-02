@@ -38,18 +38,6 @@ class Deposit < ApplicationRecord
   before_validation { self.completed_at ||= Time.current if completed? }
   before_validation { self.transfer_type ||= currency.coin? ? 'crypto' : 'fiat' }
 
-  after_create do
-    EventAPI.notify(
-      "system.deposit.confirmed",
-      {
-        :record => {
-          amount: amount,
-          currency: currency_id
-        }
-      }
-    )
-  end
-
   aasm whiny_transitions: false do
     state :submitted, initial: true
     state :canceled

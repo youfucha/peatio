@@ -5,5 +5,5 @@
 
 require 'active_support/concern'
 require 'active_support/lazy_load_hooks'
-require 'amqp/event_api'
+require 'event_api'
 ActiveSupport.on_load(:active_record) { ActiveRecord::Base.include EventAPI::ActiveRecord::Extension }

@@ -38,7 +38,7 @@ class PaymentAddress < ApplicationRecord
   end
 
   def enqueue_address_generation
-    AMQP::Queue.enqueue(:deposit_coin_address, { member_id: member.id, wallet_id: wallet.id }, { persistent: true })
+    ::Stream.enqueue(:deposit_coin_address, { member_id: member.id, wallet_id: wallet.id }, { persistent: true })
   end
 
   def format_address(format)
@@ -63,7 +63,7 @@ class PaymentAddress < ApplicationRecord
   end
 
   def trigger_address_event
-    ::AMQP::Queue.enqueue_event('private', member.uid, :deposit_address, type: :create,
+    ::Stream.enqueue_event('private', member.uid, :deposit_address, type: :create,
                                 currencies: wallet.currencies.codes,
                                 blockchain_key: blockchain_key,
                                 address:  address)

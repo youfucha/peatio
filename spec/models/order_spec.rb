@@ -343,7 +343,7 @@ describe Order, '#trigger_event' do
       }
     end
 
-    before { ::AMQP::Queue.expects(:enqueue_event).with('private', subject.member.uid, 'order', data) }
+    before { ::Stream.expects(:enqueue_event).with('private', subject.member.uid, 'order', data) }
 
     it { subject.trigger_event }
   end
@@ -374,7 +374,7 @@ describe Order, '#trigger_event' do
     end
 
     it 'doesnt push event for active market order' do
-      ::AMQP::Queue.expects(:enqueue_event).with(:order, data).never
+      ::Stream.expects(:enqueue_event).with(:order, data).never
       subject.trigger_event
     end
 
@@ -386,7 +386,7 @@ describe Order, '#trigger_event' do
     context do
       it do
         subject.update!(state: 'done')
-        ::AMQP::Queue.expects(:enqueue_event).with('private', subject.member.uid, 'order', data)
+        ::Stream.expects(:enqueue_event).with('private', subject.member.uid, 'order', data)
         subject.trigger_event
       end
     end

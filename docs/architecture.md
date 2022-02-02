@@ -11,7 +11,7 @@ a crypto-currency cluster on Kubernetes.
  * Kubernetes cluster deployed using Kite
  * MySQL 5.7 Highly available (RDS / Cloud SQL)
  * Blockchain services or nodes running in VM
- * RabbitMQ service running in the cluster or in VM
+ * Kafka service running in the cluster or in VM
 
 ## Component Description
 
@@ -41,7 +41,7 @@ Components managed by bosh are:
  * Vault
  * Bitcoin / Dash blockchain nodes
  * Concourse CI
- * RabbitMQ
+ * Kafka
  * Prometheus with Grafana for monitoring
 
 [Bosh project](https://bosh.io/)

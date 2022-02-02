@@ -126,7 +126,7 @@ class Order < ApplicationRecord
         order.record_submit_operations!
         order.update!(state: ::Order::WAIT)
 
-        AMQP::Queue.enqueue(:matching, action: 'submit', order: order.to_matching_attributes)
+        Stream.enqueue(:matching, action: 'submit', order: order.to_matching_attributes)
       end
     rescue => e
       order = find_by_id!(id)
@@ -151,7 +151,7 @@ class Order < ApplicationRecord
     end
 
     def trigger_bulk_cancel_third_party(engine_driver, filters = {})
-      AMQP::Queue.publish(engine_driver,
+      Stream.publish(engine_driver,
                           data: filters,
                           type: THIRD_PARTY_ORDER_ACTION_TYPE['cancel_bulk'])
     end
@@ -185,7 +185,7 @@ class Order < ApplicationRecord
     return trigger_third_party_creation unless market.engine.peatio_engine?
 
     save!
-    AMQP::Queue.enqueue(:order_processor,
+    Stream.enqueue(:order_processor,
                         { action: 'submit', order: attributes },
                         { persistent: false })
   end
@@ -196,7 +196,7 @@ class Order < ApplicationRecord
     self.uuid ||= UUID.generate
     self.created_at ||= Time.now
 
-    AMQP::Queue.publish(market.engine.driver, data: as_json_for_third_party, type: THIRD_PARTY_ORDER_ACTION_TYPE['submit_single'])
+    Stream.publish(market.engine.driver, data: as_json_for_third_party, type: THIRD_PARTY_ORDER_ACTION_TYPE['submit_single'])
   end
 
   def trigger_cancellation
@@ -204,11 +204,11 @@ class Order < ApplicationRecord
   end
 
   def trigger_internal_cancellation
-    AMQP::Queue.enqueue(:matching, action: 'cancel', order: to_matching_attributes)
+    Stream.enqueue(:matching, action: 'cancel', order: to_matching_attributes)
   end
 
   def trigger_third_party_cancellation
-    AMQP::Queue.publish(market.engine.driver,
+    Stream.publish(market.engine.driver,
                         data: as_json_for_third_party,
                         type: THIRD_PARTY_ORDER_ACTION_TYPE['cancel_single'])
   end
@@ -225,7 +225,7 @@ class Order < ApplicationRecord
     # skip market type orders, they should not appear on trading-ui
     return unless ord_type == 'limit' || state == 'done'
 
-    ::AMQP::Queue.enqueue_event('private', member&.uid, 'order', for_notify)
+    ::Stream.enqueue_event('private', member&.uid, 'order', for_notify)
   end
 
   def side

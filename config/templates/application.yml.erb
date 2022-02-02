@@ -95,13 +95,9 @@ defaults: &defaults
   EVENT_API_JWT_PRIVATE_KEY: ~ # Private key. Must be URL-safe Base64 encoded in PEM format.
   EVENT_API_JWT_ALGORITHM:   RS256
 
-  # RabbitMQ configuration.
-  # You can use just «EVENT_API_RABBITMQ_URL» or specify configuration per separate variable.
-  EVENT_API_RABBITMQ_URL:      ~
-  EVENT_API_RABBITMQ_HOST:     localhost
-  EVENT_API_RABBITMQ_PORT:     "5672"
-  EVENT_API_RABBITMQ_USERNAME: guest
-  EVENT_API_RABBITMQ_PASSWORD: guest
+  # Kafka configuration.
+  # You can use just «KAFKA_URL» or specify configuration per separate variable.
+  KAFKA_URL:  ~
 
   BULLET: 'false'
 

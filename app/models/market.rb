@@ -145,11 +145,7 @@ class Market < ApplicationRecord
   before_validation(on: :create) { self.position = Market.count + 1 unless position.present? }
 
   after_commit do
-    if ENV["FINEX_ENABLE"]
-      Peatio::NATS.publish(:matching, action: 'new', market: symbol)
-    else
-      AMQP::Queue.enqueue(:matching, action: 'new', market: symbol)
-    end
+    Stream.produce(:matching, action: 'new', market: symbol)
   end
   after_commit :wipe_cache
   after_create { insert_position(self) }

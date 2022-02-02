@@ -1,6 +1,6 @@
-# RabbitMQ Peatio Event API
+# Kafka Peatio Event API
 
-## Overview of RabbitMQ details
+## Overview of Kafka details
 
 Peatio submits all events into three exchanges depending on event category (read next).
 
@@ -15,7 +15,7 @@ The exchange name consists of three parts:
 The routing key looks like `deposit.updated`, `btcusd.new_order`.
 The event name matches the routing key but with event category appended at the beginning, like `model.deposit.updated`, `market.btcusd.new_order`.
 
-## Overview of RabbitMQ message
+## Overview of Kafka message
 
 Each produced message in `Event API` is JWT (complete format).
 
@@ -51,7 +51,7 @@ decoded_jwt_payload = verification_result[:payload]
 Kernel.puts "MATCH AFTER VERIFICATION: #{jwt_payload == decoded_jwt_payload}."
 ```
 
-The RabbitMQ message is stored in JWT field called `event`.
+The Kafka message is stored in JWT field called `event`.
 
 ## Overview of Event API message
 
@@ -411,7 +411,7 @@ event: {
 require "bunny"
 
 def generate_jwt(jwt_payload)
-  Kernel.abort "Please, see «Overview of RabbitMQ message» for implementation guide."
+  Kernel.abort "Please, see «Overview of Kafka message» for implementation guide."
 end
 
 Bunny.run host: "localhost", port: 5672, username: "guest", password: "guest" do |session|
@@ -449,9 +449,9 @@ end
 
 IMPORTANT: Don't forget to implement the logic for JWT exception handling!
 
-## Producing events using `rabbitmqadmin`
+## Producing events using `kafka`
 
-`rabbitmqadmin publish routing_key=deposit.created payload=JWT exchange=peatio.events.model`
+`kafka publish routing_key=deposit.created payload=JWT exchange=peatio.events.model`
 
 Don't forget to pass environment variable `JWT`.
 
@@ -461,7 +461,7 @@ Don't forget to pass environment variable `JWT`.
 require "bunny"
 
 def verify_jwt(jwt_payload)
-  Kernel.abort "Please, see «Overview of RabbitMQ message» for implementation guide."
+  Kernel.abort "Please, see «Overview of Kafka message» for implementation guide."
 end
 
 Bunny.run host: "localhost", port: 5672, username: "guest", password: "guest" do |session|

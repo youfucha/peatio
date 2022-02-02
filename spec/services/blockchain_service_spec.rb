@@ -89,7 +89,7 @@ describe BlockchainService do
           before do
             service.stubs(:latest_block_number).returns(100)
             service.adapter.stubs(:fetch_block!).returns(expected_block)
-            AMQP::Queue.expects(:enqueue).with(:events_processor, is_a(Hash))
+            Stream.expects(:enqueue).with(:events_processor, is_a(Hash))
           end
 
           it { service.process_block(block_number) }

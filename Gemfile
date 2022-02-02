@@ -14,7 +14,6 @@ gem 'hiredis', '~> 0.6.0'
 gem 'figaro', '~> 1.1.1'
 gem 'hashie', '~> 3.6.0'
 gem 'aasm', '~> 5.0.8'
-gem 'bunny', '~> 2.14.1'
 gem 'cancancan', '~> 3.1.0'
 gem 'enumerize', '~> 2.2.2'
 gem 'kaminari', '~> 1.2.1'
@@ -90,4 +89,4 @@ end
 
 gem "pg", "~> 1.2"
 
-gem "nats-pure", "~> 0.7.0"
+gem "ruby-kafka", "~> 1.4.0"

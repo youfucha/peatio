@@ -82,7 +82,7 @@ You must know what you're doing, there's no shortcut. Please get prepared before
 * Built-in multiple wallet support (e.g. deposit, hot, warm and cold)
 * Built-in [plugable coin API](https://www.openware.com/sdk/2.6/docs/peatio/coins/development.html)
 * Build-in Management API - server-to-server API with high privileges
-* Build-in RabbitMQ Event API
+* Build-in Kafka Event API
 * Usability and scalability
 * Websocket API and high frequency trading support
 * Support multiple digital currencies (e.g. Bitcoin, Litecoin, Ethereum, Ripple etc.)

@@ -331,7 +331,7 @@ class Withdraw < ApplicationRecord
   end
 
   def send_coins!
-    AMQP::Queue.enqueue(:withdraw_coin, id: id) if currency.coin?
+    Stream.enqueue(:withdraw_coin, id: id) if currency.coin?
   end
 end
 
