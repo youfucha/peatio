@@ -162,8 +162,7 @@ module EventAPI
           "\nPublishing to #{topic} with key: #{event_name} (exchange name).\n"
         end
 
-        ::Stream.producer.produce(event_payload, topic: topic, partition_key: event_name)
-        ::Stream.producer.deliver_messages
+        ::Stream.producer.produce(payload: event_payload.to_json, topic: topic, key: event_name)
       end
     end
   end

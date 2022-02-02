@@ -10,8 +10,7 @@ module Jobs
 
             event_name = service.event_name(period)
             Rails.logger.info { "publishing #{point} #{event_name} stream for #{market.symbol}" }
-            ::Stream.enqueue_event('public', market.symbol,
-                                        event_name, point)
+            ::Stream.enqueue_event('public', market.symbol, event_name, point)
           end
         end
         sleep 2

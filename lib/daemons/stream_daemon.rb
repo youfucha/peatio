@@ -7,12 +7,9 @@ raise "bindings must be provided." if ARGV.size == 0
 
 logger = Rails.logger
 
-consumer = ::Stream.connection.consumer
+consumer = ::Stream.consumer
 
-at_exit { consumer.stop }
-
-Signal.trap("INT",  &terminate)
-Signal.trap("TERM", &terminate)
+at_exit { consumer.close }
 
 def get_worker(id)
   ::Workers::Engines.const_get(id.to_s.camelize).new
@@ -23,12 +20,16 @@ ARGV.each do |id|
   worker = get_worker(id)
 
   consumer.subscribe(id)
-  consumer.each_message(automatically_mark_as_processed: false) do |message|
-    logger.info { "Received: #{payload.value}" }
-    begin
-      payload = JSON.parse(message.value)
 
-      consumer.mark_message_as_processed(message)
+  loop do
+    message = consumer.poll(100)
+
+    next if message.nil?
+
+    logger.info { "Received: #{message.payload}" }
+
+    begin
+      payload = JSON.parse(message.payload)
 
       worker.process(payload)
     rescue StandardError => e
@@ -39,6 +40,8 @@ ARGV.each do |id|
 
       report_exception(e)
     end
+
+    @consumer.commit(nil, true)
   end
 
   workers << worker
